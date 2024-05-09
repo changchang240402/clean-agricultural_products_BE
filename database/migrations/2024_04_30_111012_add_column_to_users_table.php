@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::table('users', function (Blueprint $table) {
             $table->string('phone', 12)->unique();
-            $table->string('address', 100);
+            $table->string('address');
             $table->date('birthday')->nullable();
             $table->string('license_plates', 10)->unique()->nullable();
             $table->string('driving_license_number', 12)->unique()->nullable();
@@ -21,7 +21,7 @@ return new class extends Migration
             $table->integer('payload')->nullable();
             $table->string('avatar')->nullable();
             $table->tinyInteger('role');
-            $table->tinyInteger('status')->default(1);
+            $table->tinyInteger('status');
             if (Schema::hasColumn('users', 'name')) {
                 $table->string('name', 50)->change();
             }

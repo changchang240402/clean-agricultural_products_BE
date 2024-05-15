@@ -92,9 +92,10 @@ class User extends Authenticatable implements JWTSubject
         return $this->hasMany(Order::class, 'user_id', 'id');
     }
 
-    public function attachments(): MorphMany
+
+    public function attachments(): HasMany
     {
-        return $this->morphMany(Review::class, 'review');
+        return $this->hasMany(Review::class, 'review_id', 'id');
     }
 
     public static function importFromExcel()

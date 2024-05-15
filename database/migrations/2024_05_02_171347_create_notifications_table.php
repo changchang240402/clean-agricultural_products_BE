@@ -18,6 +18,7 @@ return new class extends Migration
             $table->unsignedBigInteger('target_id')->nullable();
             $table->string('title', 100);
             $table->string('describe');
+            $table->string('link');
             $table->foreign('notification_type_id')->references('id')->on('notification_types');
             $table->timestamps();
         });

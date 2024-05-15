@@ -28,9 +28,9 @@ class Item extends Model
         'status',
     ];
 
-    public function attachments(): MorphMany
+    public function attachments(): HasMany
     {
-        return $this->morphMany(Review::class, 'review');
+        return $this->hasMany(Review::class, 'review_id', 'id');
     }
 
     public function seller(): BelongsTo
@@ -48,9 +48,9 @@ class Item extends Model
         return $this->hasMany(OrderDetail::class, 'item_id', 'id');
     }
 
-    public function notifications(): MorphMany
+    public function notifications(): HasMany
     {
-        return $this->morphMany(Notification::class, 'target');
+        return $this->hasMany(Notification::class, 'target_id', 'id');
     }
 
     public static function importFromExcel()

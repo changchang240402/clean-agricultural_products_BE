@@ -20,11 +20,17 @@ class Notification extends Model
         'target_id',
         'title',
         'describe',
+        'link',
     ];
 
-    public function target(): MorphTo
+    public function targetItem(): BelongsTo
     {
-        return $this->morphTo();
+        return $this->belongsTo(Item::class, 'target_id', 'id');
+    }
+
+    public function targetUser(): BelongsTo
+    {
+        return $this->belongsTo(Item::class, 'target_id', 'id');
     }
 
     public function notificationDetails(): HasMany

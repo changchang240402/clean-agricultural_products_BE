@@ -32,6 +32,8 @@ class ReviewFactory extends Factory
                             ->inRandomOrder()->get()->random()->id;
             $reviewType = config('constants.REVIEW')['item'];
             $reviewId = Item::all()->random()->id;
+            // $reviewId = Item::where('status', '=', config('constants.STATUS_ITEM')['in use'])
+            // ->inRandomOrder()->get()->random()->id;
         }
         return [
             'user_id' => $userId,

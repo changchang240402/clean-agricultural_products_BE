@@ -88,4 +88,22 @@ class AuthController extends Controller
             ], 401);
         }
     }
+    public function getUserProfile()
+    {
+        try {
+            $userId = auth()->user()->id;
+
+            $user = $this->authRepository->getUserProfile($userId);
+
+            return response()->json([
+                'success' => true,
+                'user' => $user
+            ], 200);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'success' => false,
+                'message' => $th->getMessage()
+            ], 401);
+        }
+    }
 }

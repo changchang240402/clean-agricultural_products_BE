@@ -93,4 +93,9 @@ class AuthRepository implements AuthRepositoryInterface
             throw new Exception('Người dùng không hoạt động', 401);
         }
     }
+
+    public function getUserProfile($userId)
+    {
+        return $this->user->find($userId);
+    }
 }

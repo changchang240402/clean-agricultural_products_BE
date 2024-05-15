@@ -23,6 +23,11 @@ class Review extends Model
         'created_at',
     ];
 
+    public function getRelatedModelAttribute()
+    {
+        return $this->review_type == 0 ? User::class : Item::class;
+    }
+
     /**
      * The attributes that should be cast.
      *
@@ -32,9 +37,14 @@ class Review extends Model
         'created_at' => 'datetime',
     ];
 
-    public function review(): MorphTo
+    public function reviewUser(): BelongsTo
     {
-        return $this->morphTo();
+        return $this->belongsTo(User::class, 'review_id', 'id');
+    }
+
+    public function reviewItem(): BelongsTo
+    {
+        return $this->belongsTo(Item::class, 'review_id', 'id');
     }
 
     public function user(): BelongsTo

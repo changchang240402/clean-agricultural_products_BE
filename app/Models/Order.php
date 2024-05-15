@@ -29,9 +29,9 @@ class Order extends Model
         'cancellation_note',
     ];
 
-    public function notifications(): MorphMany
+    public function notifications(): HasMany
     {
-        return $this->morphMany(Notification::class, 'target');
+        return $this->hasMany(Notification::class, 'target_id', 'id');
     }
 
     public function orderDetails(): HasMany

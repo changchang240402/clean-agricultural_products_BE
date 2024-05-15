@@ -19,9 +19,12 @@ class OrderDetailFactory extends Factory
     public function definition(): array
     {
         $order = Order::all()->random();
+        // $order = Order::where('status', '=', 4)->inRandomOrder()->get()->random();
         $createdAt = fake()->dateTimeBetween('-3 year', 'now');
         $updatedAt = fake()->dateTimeBetween($createdAt, 'now');
-        $itemId = Item::where('seller_id', '=', $order->seller_id)->inRandomOrder()->get()->random()->id;
+        $itemId = Item::where('seller_id', '=', $order->seller_id)
+                    // ->where('status', '=', config('constants.STATUS_ITEM')['in use'])
+                    ->inRandomOrder()->get()->random()->id;
         $status = random_int(1, 2);
         $count = random_int(1, 10);
         return [

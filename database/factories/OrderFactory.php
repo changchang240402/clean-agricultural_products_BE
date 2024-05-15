@@ -17,10 +17,11 @@ class OrderFactory extends Factory
      */
     public function definition(): array
     {
-        $role1 = [8,9,10,11];
-        $role2 = [6,7];
+        $role1 = [4,5];
+        $role2 = [2,3];
         $review1 = ['1,3', '1,4', '1,3,4'];
         $statusrole = [1,2];
+        // $statusrole = [1,2,3];
         $traderId1 = User::where('role', '=', config('constants.ROLE')['trader'])
                         ->whereIn('status', $statusrole)
                         ->inRandomOrder()->get()->random()->id;
@@ -36,6 +37,14 @@ class OrderFactory extends Factory
         $receivedDate1 = fake()->dateTimeBetween($deliveryDate1, 'now');
         $sellerId = User::where('role', '=', config('constants.ROLE')['seller'])->inRandomOrder()->get()->random()->id;
         $userId = User::where('role', '=', config('constants.ROLE')['user'])->inRandomOrder()->get()->random()->id;
+        // $totalPrice = fake()->numberBetween(5000, 20000) * 1000;
+        // $totalQuantity = fake()->numberBetween(50, 100) * 10;
+        // $traderId = $traderId1;
+        // $statusReview = $check ? $review1[array_rand($review1)] : '1';
+        // $status = 4;
+        // $orderDate = $orderDate1;
+        // $deliveryDate = $deliveryDate1;
+        // $receivedDate = $receivedDate1;
         if ($randomNumber < 7) {
             $totalPrice = fake()->numberBetween(5000, 20000) * 1000;
             $totalQuantity = fake()->numberBetween(50, 100) * 10;
@@ -75,6 +84,8 @@ class OrderFactory extends Factory
             'received_date' => $receivedDate,
             'order_cancellation_date' => $orderCancellationDate,
             'cancellation_note' => $cancellationNote,
+            // 'order_cancellation_date' => null,
+            // 'cancellation_note' => null,
             'created_at' => $createdAt,
             'updated_at' => $updatedAt,
         ];

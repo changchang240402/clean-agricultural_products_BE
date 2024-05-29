@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Models\User;
 use App\Repositories\User\UserRepository;
 use Exception;
 use Illuminate\Pagination\LengthAwarePaginator;
@@ -12,10 +13,14 @@ class UserService
 {
     protected $userRepository;
 
+    protected $mapboxService;
+
     public function __construct(
         UserRepository $userRepository,
+        MapboxService $mapboxService,
     ) {
         $this->userRepository = $userRepository;
+        $this->mapboxService = $mapboxService;
     }
 
     public function getSellerToAdmin()
@@ -69,5 +74,31 @@ class UserService
             $province = $filter['address'];
         }
         return $this->getShopsToUse($name, $province);
+    }
+
+    public function sellerDetailById($id)
+    {
+        return $this->userRepository->sellerDetailById($id);
+    }
+
+    public function getCostShip($userId, $sellerId)
+    {
+        $address1 = User::where('id', $userId)->first();
+        if (!$address1) {
+            throw new Exception('This address1 does not exist');
+        }
+        $address2 = User::where('id', $sellerId)->first();
+        if (!$address2) {
+            throw new Exception('This address2 does not exist');
+        }
+        $user = $this->mapboxService->getCoordinates($address1->address);
+        if (!$user) {
+            throw new Exception('This address user does not exist');
+        }
+        $seller = $this->mapboxService->getCoordinates($address2->address);
+        if (!$seller) {
+            throw new Exception('This address seller does not exist');
+        }
+        return $this->mapboxService->getDirections($user, $seller);
     }
 }

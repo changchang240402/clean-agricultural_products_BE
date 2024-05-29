@@ -69,13 +69,50 @@ class ItemController extends Controller
             'item' => $item,
         ], 200);
     }
+
+    public function itemDetail($id)
+    {
+        try {
+            $item = $this->itemService->itemDetail($id);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'success' => false,
+                'message' => $th->getMessage()
+            ], 500);
+        }
+
+        return response()->json([
+            'success' => true,
+            'item' => $item,
+        ], 200);
+    }
+
+    public function getItemByShop($id)
+    {
+        try {
+            $item = $this->itemService->getItemByShop($id);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'success' => false,
+                'message' => $th->getMessage()
+            ], 500);
+        }
+
+        return response()->json([
+            'success' => true,
+            'item' => $item,
+        ], 200);
+    }
     // public function updateStatusFrom3To4()
     // {
-    //     $role = [1,3];
-    //     $products = Item::where('status', 4)->get();
+    //     $roles = [50, 60, 70, 80, 90, 100];
+    //     $products = Item::all();
 
     //     foreach ($products as $product) {
-    //         $product->status = 0;
+    //         $print = $product->price;
+    //         $role = array_rand($roles);
+    //         $product->type = $roles[$role];
+    //         $product->price_type = $roles[$role] * $print;
     //         $product->save();
     //     }
     // }

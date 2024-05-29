@@ -34,6 +34,23 @@ class UserController extends Controller
         ], 200);
     }
 
+    public function sellerDetailById($id)
+    {
+        try {
+            $seller = $this->userService->sellerDetailById($id);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'success' => false,
+                'message' => $th->getMessage()
+            ], 500);
+        }
+
+        return response()->json([
+            'success' => true,
+            'shop' => $seller,
+        ], 200);
+    }
+
     public function getSellerToAdmin()
     {
         try {

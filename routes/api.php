@@ -2,8 +2,14 @@
 
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ItemController;
+use App\Http\Controllers\OrderController;
+use App\Http\Controllers\OrderDetailController;
 use App\Http\Controllers\ProductController;
+use App\Http\Controllers\ReviewController;
+use App\Http\Controllers\StripeController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\VnPayController;
+use App\Models\Review;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -31,6 +37,9 @@ Route::group([
     Route::post("logout", [AuthController::class, "logout"])->name('logout');
     Route::get("me", [AuthController::class, "getUserProfile"]);
     Route::get("products/{id}", [ProductController::class, "getProductsByProductTypeId"]);
+    Route::get("item/{id}", [ItemController::class, "itemDetail"]);
+    Route::get("reviews", [ReviewController::class, "getReviewsToId"]);
+    Route::get("shop/{id}", [UserController::class, "sellerDetailById"]);
 });
 
 Route::group([
@@ -41,6 +50,15 @@ Route::group([
     Route::get("items", [ItemController::class, "getItemsToUser"]);
     Route::get("topItems", [ItemController::class, "getTopItemSale"]);
     Route::get("newItems", [ItemController::class, "getNewItemSale"]);
+    Route::get("itemShop/{id}", [ItemController::class, "getItemByShop"]);
+    Route::get("orders", [OrderController::class, "getOrdersByUser"]);
+    Route::post("orderDetail", [OrderDetailController::class, "createOrderDetailsByUser"]);
+    Route::post("orderDetail/{id}", [OrderDetailController::class, "updateOrderDetailsByUser"]);
+    Route::delete("orderDetail/{id}", [OrderDetailController::class, "deleteOrderDetailsByUser"]);
+    Route::delete("order/{id}", [OrderController::class, "deleteOrderByUser"]);
+    Route::post('/create_payment_url', [VnPayController::class, 'createPaymentUrl']);
+    Route::get('/vnpay_return', [VnPayController::class, 'vnPayReturn']);
+    Route::post('/create-payment-intent', [StripeController::class, 'createPaymentIntent']);
 });
 
 Route::group([
@@ -50,4 +68,5 @@ Route::group([
     Route::get("sellers", [UserController::class, "getSellerToAdmin"]);
 });
 
-// Route::get("abc", [ItemController::class, "updateStatusFrom3To4"]);
+Route::get("abc", [OrderController::class, "updateStatusFrom3To4"]);
+Route::get('/directions', [OrderController::class, 'getDirections']);

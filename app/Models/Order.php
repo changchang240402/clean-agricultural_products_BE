@@ -27,6 +27,8 @@ class Order extends Model
         'received_date',
         'order_cancellation_date',
         'cancellation_note',
+        'cost',
+        'shipping_money',
     ];
 
     public function notifications(): HasMany

@@ -101,12 +101,28 @@ class ItemService
     {
         $item = $this->itemRepository->getItemsToUser();
         return $item->sortByDesc('total_orders')->take(10)->values()->toArray();
-        ;
     }
 
     public function getNewItemSale()
     {
         $items = $this->itemRepository->getItemsToUser();
-        return $items->sortByDesc('created_at')->take(25)->values()->toArray();
+        return $items->sortBy('total_orders')->take(25)->values()->toArray();
+    }
+
+    public function itemDetail($id)
+    {
+        return $this->itemRepository->itemDetail($id);
+    }
+
+    public function getItemByShop($id)
+    {
+        $items = $this->itemRepository->getItemsToUser();
+        $itemShop = $items->filter(function ($item) use ($id) {
+            if ($item['seller_id'] == $id) {
+                return true;
+            }
+            return false;
+        });
+        return $itemShop->values()->toArray();
     }
 }

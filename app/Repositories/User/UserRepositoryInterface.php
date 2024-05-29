@@ -9,4 +9,6 @@ interface UserRepositoryInterface extends RepositoryInterface
     public function getSellersToUser();
 
     public function getSellerToAdmin();
+
+    public function sellerDetailById($id);
 }

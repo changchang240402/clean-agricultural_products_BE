@@ -50,7 +50,7 @@ class Item extends Model
 
     public function notifications(): HasMany
     {
-        return $this->hasMany(Notification::class, 'target_id', 'id');
+        return $this->hasMany(Notification::class, 'target_type', 'id');
     }
 
     public static function importFromExcel()

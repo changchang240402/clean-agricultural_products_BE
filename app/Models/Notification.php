@@ -25,7 +25,7 @@ class Notification extends Model
 
     public function targetItem(): BelongsTo
     {
-        return $this->belongsTo(Item::class, 'target_id', 'id');
+        return $this->belongsTo(Item::class, 'target_type', 'id');
     }
 
     public function targetUser(): BelongsTo

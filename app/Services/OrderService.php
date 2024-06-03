@@ -9,9 +9,11 @@ use Exception;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\DB;
+use Carbon\Carbon;
 
 class OrderService
 {
+    private const PAGINATE_PER_PAGE = 10;
     protected $orderDetailRepository;
 
     protected $orderRepository;
@@ -57,5 +59,106 @@ class OrderService
             'delete' => $delete,
             'deleteDetail' => $deleteDetail
         ];
+    }
+
+    public function totalOrderDetailByUser()
+    {
+        return $this->orderRepository->totalOrderDetailByUser();
+    }
+
+
+    public function updateBill()
+    {
+        $orders =  $this->orderRepository->getOrderBill();
+        return $orders;
+    }
+
+    public function statisticsOrder($userId, $role)
+    {
+        return $this->orderRepository->statisticsOrder($userId, $role);
+    }
+
+    public function getOrder(
+        int $userId,
+        int $role,
+        int $page,
+        int $status = null,
+        int $time = null
+    ) {
+        $orders = $this->orderRepository->getOrder($userId, $role);
+        if ($status) {
+            $orders = $this->filterByStatus($orders, $status);
+        }
+        if ($time) {
+            $orders = $this->filterByTime($orders, $time);
+        }
+        if ($orders->isEmpty()) {
+            throw new Exception('Shop not found');
+        }
+        $perPage = self::PAGINATE_PER_PAGE;
+        $ordersPerPage = $orders->forPage($page, $perPage);
+        $paginatedOrders = new LengthAwarePaginator(
+            $ordersPerPage->values()->all(),
+            $orders->count(),
+            $perPage,
+            $page,
+            ['path' => request()->url(), 'query' => request()->query()]
+        );
+
+        return $paginatedOrders;
+    }
+
+    private function filterByTime($orders, $time)
+    {
+        $filteredOrders = collect();
+
+        $startDate = match ($time) {
+            1 => Carbon::now()->startOfMonth(),
+            2 => Carbon::now()->subMonths(3)->startOfMonth(),
+            3 => Carbon::now()->subMonths(6)->startOfMonth(),
+            4 => Carbon::now()->startOfYear(),
+            default => null,
+        };
+
+        if ($startDate) {
+            foreach ($orders as $order) {
+                $orderDate = Carbon::parse($order['order_date']);
+                if ($orderDate >= $startDate) {
+                    $filteredOrders->push($order);
+                }
+            }
+        } else {
+            $filteredOrders = $orders;
+        }
+
+        return $filteredOrders;
+    }
+
+    private function filterByStatus($orders, $status)
+    {
+        return $status ? $orders->filter(function ($order) use ($status) {
+            if ($order['status'] === $status) {
+                return true;
+            }
+            return false;
+        }) : $orders;
+    }
+
+    public function filterOrder(int $userId, int $role, int $page, array $filter)
+    {
+        $status = null;
+        $time = null;
+        if (isset($filter['status'])) {
+            $status = $filter['status'];
+        }
+        if (isset($filter['time'])) {
+            $time = $filter['time'];
+        }
+        return $this->getOrder($userId, $role, $page, $status, $time);
+    }
+
+    public function orderById($id, $userId)
+    {
+        return $this->orderRepository->orderById($id, $userId);
     }
 }

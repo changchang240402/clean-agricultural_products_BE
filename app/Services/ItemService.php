@@ -19,6 +19,36 @@ class ItemService
         $this->itemRepository = $itemRepository;
     }
 
+    public function getItem(
+        int $page,
+        string $name = null,
+        int $status = null,
+    ) {
+        $items = $this->itemRepository->getItem();
+        if ($items->count() > 0) {
+            if ($name) {
+                $items = $this->filterByName($items, $name);
+            }
+            if (isset($status)) {
+                $items = $this->filterByStatus($items, $status);
+            }
+        }
+        if ($items->isEmpty()) {
+            throw new Exception('Item not found');
+        }
+        $perPage = self::PAGINATE_PER_PAGE;
+        $itemsPerPage = $items->forPage($page, $perPage);
+        $paginatedItems = new LengthAwarePaginator(
+            $itemsPerPage->values()->all(),
+            $items->count(),
+            $perPage,
+            $page,
+            ['path' => request()->url(), 'query' => request()->query()]
+        );
+
+        return $paginatedItems;
+    }
+
     public function getItemsToUser(
         int $page,
         string $name = null,
@@ -38,7 +68,7 @@ class ItemService
             }
         }
         if ($items->isEmpty()) {
-            throw new Exception('Shop not found');
+            throw new Exception('Item not found');
         }
         $perPage = self::PAGINATE_PER_PAGE;
         $itemsPerPage = $items->forPage($page, $perPage);
@@ -60,6 +90,13 @@ class ItemService
         } elseif ($sort === 'desc') {
             return $items->sortByDesc('price');
         }
+    }
+
+    private function filterByStatus($items, $status)
+    {
+        return isset($status) ? $items->filter(function ($item) use ($status) {
+            return $item['status'] === $status;
+        }) : $items;
     }
 
     private function filterByName($items, $name)
@@ -96,6 +133,19 @@ class ItemService
             $sort = $filter['sort'];
         }
         return $this->getItemsToUser($page, $name, $product, $sort);
+    }
+
+    public function filterItems(int $page, array $filter)
+    {
+        $name = null;
+        $status = null;
+        if (isset($filter['name'])) {
+            $name = $filter['name'];
+        }
+        if (isset($filter['status'])) {
+            $status = $filter['status'];
+        }
+        return $this->getItem($page, $name, $status);
     }
     public function getTopItemSale()
     {

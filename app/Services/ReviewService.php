@@ -22,6 +22,11 @@ class ReviewService
         int $id,
         int $type,
     ) {
-        return $this->reviewRepository->getReviewsToId($id, $type);
+        $star =  $this->reviewRepository->starStatistics($id, $type);
+        $review =  $this->reviewRepository->getReviewsToId($id, $type);
+        return [
+            'star' => $star,
+            'review' => $review
+        ];
     }
 }

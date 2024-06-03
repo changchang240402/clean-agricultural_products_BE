@@ -17,6 +17,7 @@ class OrderDetailController extends Controller
     ) {
         $this->orderDetailService = $orderDetailService;
     }
+    
     public function createOrderDetailsByUser(CreateOrderDetailRequest $request)
     {
         $validated = $request->validated();

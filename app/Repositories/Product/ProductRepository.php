@@ -25,4 +25,27 @@ class ProductRepository extends BaseRepository implements ProductRepositoryInter
             ])
             ->get();
     }
+
+    public function getProduct()
+    {
+        $userId = auth()->id();
+        $user = auth()->user();
+        $products = [];
+        switch ($user->role) {
+            case 0:
+                $products = $this->model->withCount('items as total_items')->orderBy('updated_at', 'desc')->get();
+                break;
+            case 2:
+                $products = $this->model
+                ->withCount([
+                    'items as total_items' => function ($query) use ($userId) {
+                        $query->where('seller_id', '=', $userId);
+                    }
+                ])->orderBy('updated_at', 'desc')->get();
+                break;
+            default:
+                return response()->json(['message' => 'Unknown Role'], 400);
+        }
+        return $products;
+    }
 }

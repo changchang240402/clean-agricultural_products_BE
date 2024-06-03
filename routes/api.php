@@ -40,6 +40,12 @@ Route::group([
     Route::get("item/{id}", [ItemController::class, "itemDetail"]);
     Route::get("reviews", [ReviewController::class, "getReviewsToId"]);
     Route::get("shop/{id}", [UserController::class, "sellerDetailById"]);
+    Route::get("orderList", [OrderController::class, "orderList"]);
+    Route::get("statisticsOrder", [OrderController::class, "statisticsOrder"]);
+    Route::get("order/{id}", [OrderController::class, "orderbyId"]);
+    Route::get("products", [ProductController::class, "getProduct"]);
+    Route::get("items", [ItemController::class, "getItems"]);
+    Route::get("statistic", [UserController::class, "statistic"]);
 });
 
 Route::group([
@@ -52,6 +58,8 @@ Route::group([
     Route::get("newItems", [ItemController::class, "getNewItemSale"]);
     Route::get("itemShop/{id}", [ItemController::class, "getItemByShop"]);
     Route::get("orders", [OrderController::class, "getOrdersByUser"]);
+    Route::get("total", [OrderController::class, "getTotalOrder"]);
+    Route::post("updateBill", [OrderController::class, "updateBill"]);
     Route::post("orderDetail", [OrderDetailController::class, "createOrderDetailsByUser"]);
     Route::post("orderDetail/{id}", [OrderDetailController::class, "updateOrderDetailsByUser"]);
     Route::delete("orderDetail/{id}", [OrderDetailController::class, "deleteOrderDetailsByUser"]);
@@ -66,6 +74,8 @@ Route::group([
     'prefix' => 'admin'
 ], function () {
     Route::get("sellers", [UserController::class, "getSellerToAdmin"]);
+    Route::get("users", [UserController::class, "getUserToAdmin"]);
+    Route::get("traders", [UserController::class, "getTraderToAdmin"]);
 });
 
 Route::get("abc", [OrderController::class, "updateStatusFrom3To4"]);

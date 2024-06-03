@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\Item\FilterItemAdminAndShopRequest;
 use App\Http\Requests\Item\FilterItemRequest;
 use App\Models\Item;
 use App\Services\ItemService;
@@ -23,6 +24,25 @@ class ItemController extends Controller
         $validated = $request->validated();
         try {
             $item = $this->itemService->filterItem($page, $validated);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'success' => false,
+                'message' => $th->getMessage()
+            ], 500);
+        }
+
+        return response()->json([
+            'success' => true,
+            'item' => $item,
+        ], 200);
+    }
+
+    public function getItems(FilterItemAdminAndShopRequest $request)
+    {
+        $page = request()->get('page', 1);
+        $validated = $request->validated();
+        try {
+            $item = $this->itemService->filterItems($page, $validated);
         } catch (\Throwable $th) {
             return response()->json([
                 'success' => false,

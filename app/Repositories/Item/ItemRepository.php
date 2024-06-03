@@ -125,4 +125,58 @@ class ItemRepository extends BaseRepository implements ItemRepositoryInterface
             'created_at' => $item->created_at,
         ];
     }
+
+    public function getItem()
+    {
+        $userId = auth()->id();
+        $user = auth()->user();
+        $items = [];
+        switch ($user->role) {
+            case 0:
+                $items = $this->model
+                ->with([
+                    'product' => function ($query) {
+                        $query->select('id', 'product_name', 'price_max', 'price_min');
+                    }
+                ])
+                ->withCount([
+                    'notifications as notifications' => function ($query) {
+                        $query->where('notification_type_id', '=', 3);
+                    }
+                ])
+                ->orderBy('updated_at', 'desc')->get();
+                break;
+            case 2:
+                $items = $this->model
+                    ->where('seller_id', '=', $userId)
+                    ->with([
+                        'product' => function ($query) {
+                            $query->select('id', 'product_name', 'price_max', 'price_min');
+                        }
+                    ])
+                    ->withCount([
+                        'notifications as notifications' => function ($query) {
+                            $query->where('notification_type_id', '=', 3);
+                        }
+                    ])
+                    ->orderBy('updated_at', 'desc')->get();
+                break;
+            default:
+                return response()->json(['message' => 'Unknown Role'], 400);
+        }
+        return $items;
+    }
+
+    public function totalItemByUserId($month, $year)
+    {
+        $item = $this->model->count();
+        $item_now = $this->model
+        ->whereYear('created_at', $year)
+        ->whereMonth('created_at', $month)
+        ->count();
+        return [
+            'item' => $item,
+            'item_now' => $item_now
+        ];
+    }
 }

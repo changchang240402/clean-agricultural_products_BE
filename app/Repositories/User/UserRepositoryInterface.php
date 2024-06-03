@@ -10,5 +10,11 @@ interface UserRepositoryInterface extends RepositoryInterface
 
     public function getSellerToAdmin();
 
+    public function getUserToAdmin();
+
     public function sellerDetailById($id);
+
+    public function getTraderToAdmin();
+
+    public function totalUserByUserId($month, $year);
 }

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\Review\CreateReviewRequest;
 use App\Http\Requests\Review\FilterReviewRequest;
 use App\Services\ReviewService;
 use Illuminate\Http\Request;
@@ -23,6 +24,24 @@ class ReviewController extends Controller
         $type = $validated['type'];
         try {
             $review = $this->reviewService->getReviewsToId($id, $type);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'success' => false,
+                'message' => $th->getMessage()
+            ], 500);
+        }
+
+        return response()->json([
+            'success' => true,
+            'review' => $review,
+        ], 200);
+    }
+
+    public function createReview(CreateReviewRequest $request)
+    {
+        $validated = $request->validated();
+        try {
+            $review = $this->reviewService->createReview($validated);
         } catch (\Throwable $th) {
             return response()->json([
                 'success' => false,

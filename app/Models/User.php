@@ -101,7 +101,7 @@ class User extends Authenticatable implements JWTSubject
     public static function importFromExcel()
     {
     // Đường dẫn tới tệp Excel
-        $filePath = '/home/thuytrang/CN-ChangChang/clean-agricultural_products_BE/filedata/addess.xlsx';
+        $filePath = '../clean-agricultural_products_BE/filedata/addess.xlsx';
 
     // Sử dụng thư viện Maatwebsite\Excel để đọc dữ liệu từ tệp Excel và bỏ qua hàng đầu tiên
         $importedData = Excel::toCollection([], $filePath);

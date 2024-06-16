@@ -7,6 +7,8 @@ use App\Http\Requests\Item\FilterItemRequest;
 use App\Models\Item;
 use App\Services\ItemService;
 use Illuminate\Http\Request;
+use App\Models\Notification;
+use Illuminate\Support\Facades\DB;
 
 class ItemController extends Controller
 {
@@ -73,6 +75,40 @@ class ItemController extends Controller
         ], 200);
     }
 
+    public function getItemWarning()
+    {
+        $notifications = [];
+        try {
+            $items = $this->itemService->getItemWarning();
+            if ($items->isEmpty()) {
+                return response()->json(['message' => 'Không có sản phẩm nào cần cảnh báo'], 422);
+            }
+            foreach ($items as $item) {
+                $url = encodeId($item['id']);
+                $notificationData = [
+                    'notification_type_id' => 2,
+                    'title' => 'Thông báo nhắc nhở giá sản phẩm nằm ngoài so hơn thị trường.',
+                    'target_type' => $item['id'],
+                    'target_id' => $item['seller_id'],
+                    'describe' => 'Bạn có một sản phẩm thuộc loại' .  $item['product_name'] .  ' nằm ngoài so hơn thị trường giá hiện tại. Vui lòng kiểm tra và cân nhắc cập nhập lại giá',
+                    'link' => '/seller/item/' . $url,
+                ];
+                $notifications[] = $notificationData;
+            }
+            $noti = Notification::insert($notifications);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'success' => false,
+                'message' => $th->getMessage()
+            ], 500);
+        }
+
+        return response()->json([
+            'success' => true,
+            'noti' => $noti,
+            'item' => $items,
+        ], 200);
+    }
     public function getNewItemSale()
     {
         try {
@@ -121,6 +157,53 @@ class ItemController extends Controller
         return response()->json([
             'success' => true,
             'item' => $item,
+        ], 200);
+    }
+
+    public function getItemBan()
+    {
+        try {
+            $items = $this->itemService->getItemBan();
+            if ($items->isNotEmpty()) {
+                Item::whereIn('id', $items)->update(['status' => config('constants.STATUS_ITEM')['archived']]);
+            } else {
+                return response()->json(['message' => 'Không có sản phẩm phải khóa'], 422);
+            }
+        } catch (\Throwable $th) {
+            return response()->json([
+                'success' => false,
+                'message' => $th->getMessage()
+            ], 500);
+        }
+
+        return response()->json([
+            'success' => true,
+            'item' => $items,
+        ], 200);
+    }
+
+    public function getItemUnban()
+    {
+        DB::beginTransaction();
+        try {
+            $items = $this->itemService->getItemUnBan();
+            if ($items->isNotEmpty()) {
+                Item::whereIn('id', $items)->update(['status' => config('constants.STATUS_ITEM')['in use']]);
+                Notification::whereIN('target_type', $items)->delete();
+            } else {
+                return response()->json(['message' => 'Không có sản phẩm'], 422);
+            }
+        } catch (\Throwable $th) {
+            DB::rollBack();
+            return response()->json([
+                'success' => false,
+                'message' => $th->getMessage()
+            ], 500);
+        }
+        DB::commit();
+        return response()->json([
+            'success' => true,
+            'item' => $items,
         ], 200);
     }
     // public function updateStatusFrom3To4()

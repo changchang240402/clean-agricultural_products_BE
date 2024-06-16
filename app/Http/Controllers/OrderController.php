@@ -3,11 +3,13 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\Order\FilterOrderRequest;
+use App\Http\Requests\Order\UpdateOrderRequest;
 use App\Models\Item;
 use App\Models\Notification;
 use Illuminate\Http\Request;
 use App\Models\Order;
 use App\Models\OrderDetail;
+use App\Models\Product;
 use App\Models\Review;
 use App\Models\User;
 use App\Services\MailService;
@@ -192,8 +194,8 @@ class OrderController extends Controller
                     'link' => '/trader/tracking/' . $url,
                 ];
 
-                $this->mailService->sendMail($order->seller->email, $notificationData[0]['title'], $notificationData[0]);
-                $this->mailService->sendMail($resul->email, $notificationData[1]['title'], $notificationData[1]);
+                $this->mailService->sendMail($order->seller->email, $notificationData[0]['title'], $notificationData[0], null, null);
+                $this->mailService->sendMail($resul->email, $notificationData[1]['title'], $notificationData[1], null, null);
             }
             Notification::insert($notificationData);
 
@@ -217,6 +219,107 @@ class OrderController extends Controller
         ], 200);
     }
 
+    public function updateOrder($id, UpdateOrderRequest $request)
+    {
+        $userId = auth()->id();
+        $validated = $request->validated();
+        $notificationData = [];
+        $code = 12040900 + $id;
+        $url = encodeId($id);
+        switch ($validated['time']) {
+            case 1:
+                try {
+                    $order = Order::where('id', '=', $id)->where('user_id', '=', $userId)->first();
+                    $order->update(['status' => 6, 'cancellation_note' => $validated['content'], 'order_cancellation_date' => Carbon::now('Asia/Ho_Chi_Minh')]);
+                    $notificationData[] = [
+                        'notification_type_id' => 12,
+                        'target_type' => 0,
+                        'target_id' => $order->seller_id,
+                        'title' => 'Thông báo có đơn hàng #MDH' . $code . ' đã bị hủy bởi người mua.',
+                        'describe' => 'Lý do hủy đơn hàng là ' . $validated['content'],
+                        'link' => '/seller/tracking/' . $url,
+                    ];
+                    $notificationData[] = [
+                        'notification_type_id' => 12,
+                        'target_type' => 0,
+                        'target_id' => $order->trader_id,
+                        'title' => 'Thông báo có đơn hàng #MDH' . $code . ' cần vận chuyển đã bị hủy bởi người mua.',
+                        'describe' => 'Lý do hủy đơn hàng là ' . $validated['content'],
+                        'link' => '/trader/tracking/' . $url,
+                    ];
+                } catch (\Throwable $th) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => $th->getMessage()
+                    ], 500);
+                }
+                break;
+            case 2:
+                try {
+                    $order = Order::where('id', '=', $id)->where('seller_id', '=', $userId)->first();
+                    $order->update(['status' => 3, 'delivery_date' => Carbon::now('Asia/Ho_Chi_Minh')]);
+                    $notificationData[] = [
+                        'notification_type_id' => 9,
+                        'target_type' => 0,
+                        'target_id' => $order->user_id,
+                        'title' => 'Thông báo có đơn hàng #MDH' . $code . ' đang vận chuyển đến bạn.',
+                        'describe' => 'Đơn hàng đã xuất kho và đang vận chuyển đến bạn.',
+                        'link' => '/user/tracking/' . $url,
+                    ];
+                } catch (\Throwable $th) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => $th->getMessage()
+                    ], 500);
+                }
+                break;
+            case 3:
+                try {
+                    $order = Order::where('id', '=', $id)->where('trader_id', '=', $userId)->first();
+                    $order->update(['status' => 4, 'received_date' => Carbon::now('Asia/Ho_Chi_Minh')]);
+                    $notificationData[] = [
+                        'notification_type_id' => 10,
+                        'target_type' => 0,
+                        'target_id' => $order->seller_id,
+                        'title' => 'Thông báo có đơn hàng #MDH' . $code . ' đã vận chuyển đến người mua.',
+                        'describe' => 'Đơn hàng đã được vận chuyển đến người mua.',
+                        'link' => '/seller/tracking/' . $url,
+                    ];
+                } catch (\Throwable $th) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => $th->getMessage()
+                    ], 500);
+                }
+                break;
+            case 4:
+                try {
+                    $order = Order::where('id', '=', $id)->where('trader_id', '=', $userId)->first();
+                    $order->update(['status' => 5, 'received_date' => Carbon::now('Asia/Ho_Chi_Minh'), 'cancellation_note' => $validated['content'],]);
+                    $notificationData[] = [
+                        'notification_type_id' => 11,
+                        'target_type' => 0,
+                        'target_id' => $order->seller_id,
+                        'title' => 'Thông báo có đơn hàng #MDH' . $code . ' bị hoàn trả.',
+                        'describe' => 'Lý do hủy đơn hàng là ' . $validated['content'],
+                        'link' => '/seller/tracking/' . $url,
+                    ];
+                } catch (\Throwable $th) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => $th->getMessage()
+                    ], 500);
+                }
+                break;
+            default:
+                return response()->json(['message' => 'Unknown Role'], 400);
+        }
+        Notification::insert($notificationData);
+        return response()->json([
+            'success' => true,
+        ], 200);
+    }
+
     public function updateStatusFrom3To4()
     {
         // $addess = 'Đường số 7, Phường Linh Trung (Quận Thủ Đức cũ), Thành phố Thủ Đức, Tp Hồ Chí Minh';
@@ -226,22 +329,19 @@ class OrderController extends Controller
 
         // foreach ($products as $product) {
         //     $orderDetails = OrderDetail::where('order_id', $product->id)->get();
-            // $cost = $this->userService->getCostShip($product->user_id, $product->seller_id);
-            // $calculateCost = $this->orderDetailService->calculateCost($cost);
-            // $price = 0;
-            // $type = 0;
-            $orders = Order::whereNotNull('order_cancellation_date')->update(['status' => 6]);
-            // foreach ($orders as $orderDetail) {
-            //     $item = Item::where('id', $orderDetail->item_id)->first();
-
-            //     if ($item) {
-            //         $price += $item->price_type * $orderDetail->count;
-            //         $type += $item->type * $orderDetail->count;
-            //     }
-            // }
-            // $product->cost = $calculateCost;
-            // $product->shipping_money = $product->cost * $product->total_quantity;
-            // $product->save();
+        // $cost = $this->userService->getCostShip($product->user_id, $product->seller_id);
+        // $calculateCost = $this->orderDetailService->calculateCost($cost);
+        // $price = 0;
+        // $type = 0;
+        $orders = Order::whereNotNull('order_cancellation_date')->update(['status' => 6]);
+        $emails = User::where('role', '=', config('constants.ROLE')['seller'])
+            ->where('status', '=', config('constants.STATUS_USER')['in use'])
+            ->get('email');
+        // $email = $emails[0];
+        // $bcc = array_slice($emails, 1);
+        // $product->cost = $calculateCost;
+        // $product->shipping_money = $product->cost * $product->total_quantity;
+        // $product->save();
         try {
             // $url = encodeId(2);
             // $data1 = [
@@ -269,17 +369,18 @@ class OrderController extends Controller
             $money_now = $price_now + $shipping_now;
             $item = Item::where('seller_id', 2)->pluck('id')->toArray();
             $review_item = Review::where('review_type', '=', config('constants.REVIEW')['item'])
-            ->whereIn('review_id', $item)
-            ->count();
+                ->whereIn('review_id', $item)
+                ->count();
             // $this->mailService->sendIssueUpdate();
             // $data = Order::where('id', 1)->first();
             // $data['url'] = '/user/tracking/';
+            $products = Product::all()->keyBy('product_name');
             return response()->json([
                 'success' => true,
                 'message' => 'Status updated and email sent successfully.',
                 'data' => $money + $money1,
-                'data1' => $money_now,
-                'data2' => $orders,
+                'data1' => count($emails),
+                'data2' => $products,
             ], 200);
         } catch (\Throwable $th) {
             return response()->json([

@@ -175,4 +175,25 @@ class ItemService
         });
         return $itemShop->values()->toArray();
     }
+
+    public function getItemWarning()
+    {
+        return $this->itemRepository->getItemWarning();
+    }
+
+    public function getItemUnban()
+    {
+        return $this->itemRepository->getItemUnban();
+    }
+
+    public function getItemBan()
+    {
+        $items = $this->itemRepository->getItem();
+        return $items->filter(function ($item) {
+            if ($item['status'] == config('constants.STATUS_ITEM')['in use'] && $item['notifications'] >= 3) {
+                return true;
+            }
+            return false;
+        })->pluck('id');
+    }
 }

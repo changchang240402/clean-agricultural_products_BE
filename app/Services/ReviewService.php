@@ -29,4 +29,10 @@ class ReviewService
             'review' => $review
         ];
     }
+
+    public function createReview($data)
+    {
+        $data['user_id'] = auth()->id();
+        return $this->reviewRepository->create($data);
+    }
 }

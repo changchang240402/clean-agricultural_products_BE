@@ -19,15 +19,15 @@ class OrderRepository extends BaseRepository implements OrderRepositoryInterface
         $userId = auth()->id();
 
         return $this->model
-        ->where('user_id', $userId)
-        ->where('status', '=', 1)
-        ->with([
-            'seller' => function ($query) {
-                $query->select('id', 'name');
-            }
-        ])
-        ->with('orderDetails.item')
-        ->get();
+            ->where('user_id', $userId)
+            ->where('status', '=', 1)
+            ->with([
+                'seller' => function ($query) {
+                    $query->select('id', 'name');
+                }
+            ])
+            ->with('orderDetails.item')
+            ->get();
     }
 
     public function totalOrderDetailByUser()
@@ -35,10 +35,10 @@ class OrderRepository extends BaseRepository implements OrderRepositoryInterface
         $userId = auth()->id();
 
         return $this->model
-        ->where('user_id', $userId)
-        ->where('status', '=', 1)
-        ->withCount('orderDetails')
-        ->get()->sum('order_details_count');
+            ->where('user_id', $userId)
+            ->where('status', '=', 1)
+            ->withCount('orderDetails')
+            ->get()->sum('order_details_count');
     }
 
     public function getOrderBill()
@@ -46,14 +46,14 @@ class OrderRepository extends BaseRepository implements OrderRepositoryInterface
         $userId = auth()->id();
 
         return $this->model
-        ->where('user_id', $userId)
-        ->where('status', '=', 1)
-        ->with([
-            'seller' => function ($query) {
-                $query->select('id', 'address', 'email');
-            }
-        ])
-        ->get();
+            ->where('user_id', $userId)
+            ->where('status', '=', 1)
+            ->with([
+                'seller' => function ($query) {
+                    $query->select('id', 'address', 'email');
+                }
+            ])
+            ->get();
     }
 
     public function statisticsOrder($userId, $role)
@@ -95,7 +95,7 @@ class OrderRepository extends BaseRepository implements OrderRepositoryInterface
             'totalComplete' => $totalComplete,
             'totalTransported' => $totalTransported,
             'totalCancel' => $totalCancel
-            ];
+        ];
     }
 
     public function getOrder($userId, $role)
@@ -107,24 +107,24 @@ class OrderRepository extends BaseRepository implements OrderRepositoryInterface
                 break;
             case 1:
                 $orders = $this->model
-                ->where('user_id', $userId)
-                ->where('status', '!=', 1)
-                ->orderBy('order_date', 'desc')
-                ->get();
+                    ->where('user_id', $userId)
+                    ->where('status', '!=', 1)
+                    ->orderBy('order_date', 'desc')
+                    ->get();
                 break;
             case 2:
                 $orders = $this->model
-                ->where('seller_id', $userId)
-                ->where('status', '!=', 1)
-                ->orderBy('order_date', 'desc')
-                ->get();
+                    ->where('seller_id', $userId)
+                    ->where('status', '!=', 1)
+                    ->orderBy('order_date', 'desc')
+                    ->get();
                 break;
             case 3:
                 $orders = $this->model
-                ->where('trader_id', $userId)
-                ->where('status', '!=', 1)
-                ->orderBy('order_date', 'desc')
-                ->get();
+                    ->where('trader_id', $userId)
+                    ->where('status', '!=', 1)
+                    ->orderBy('order_date', 'desc')
+                    ->get();
                 break;
             default:
                 return response()->json(['message' => 'Unknown Role'], 400);
@@ -135,16 +135,16 @@ class OrderRepository extends BaseRepository implements OrderRepositoryInterface
     public function orderById($id, $userId)
     {
         return $this->model->where('id', $id)
-        ->where(function ($query) use ($userId) {
-            $query->where('user_id', $userId)
-                  ->orWhere('seller_id', $userId)
-                  ->orWhere('trader_id', $userId);
-        })
-        ->with('orderDetails.item')
-        ->with('seller')
-        ->with('user')
-        ->with('trader')
-        ->first();
+            ->where(function ($query) use ($userId) {
+                $query->where('user_id', $userId)
+                    ->orWhere('seller_id', $userId)
+                    ->orWhere('trader_id', $userId);
+            })
+            ->with('orderDetails.item')
+            ->with('seller')
+            ->with('user')
+            ->with('trader')
+            ->first();
     }
 
     public function totalMoneyByUserId($userId, $role, $month, $year)
@@ -154,35 +154,35 @@ class OrderRepository extends BaseRepository implements OrderRepositoryInterface
         switch ($role) {
             case 0:
                 $price = $this->model->where('status', '!=', 1)
-                ->selectRaw('SUM(total_price) as total_price_sum, SUM(shipping_money) as shipping_money_sum')
-                ->first();
+                    ->selectRaw('SUM(total_price) as total_price_sum, SUM(shipping_money) as shipping_money_sum')
+                    ->first();
                 $money = $price->total_price_sum + $price->shipping_money_sum;
                 $totals = $this->model->where('status', '!=', 1)
-                ->whereYear('order_date', $year)
-                ->whereMonth('order_date', $month)
-                ->selectRaw('SUM(total_price) as total_price_sum, SUM(shipping_money) as shipping_money_sum')
-                ->first();
+                    ->whereYear('order_date', $year)
+                    ->whereMonth('order_date', $month)
+                    ->selectRaw('SUM(total_price) as total_price_sum, SUM(shipping_money) as shipping_money_sum')
+                    ->first();
                 $money_now = $totals->total_price_sum + $totals->shipping_money_sum;
                 break;
             case 2:
                 $money = $this->model->where('status', '!=', 1)
-                ->where('seller_id', $userId)
-                ->sum('total_price');
+                    ->where('seller_id', $userId)
+                    ->sum('total_price');
                 $money_now = $this->model->where('status', '!=', 1)
-                ->where('seller_id', $userId)
-                ->whereYear('order_date', $year)
-                ->whereMonth('order_date', $month)
-                ->sum('total_price');
+                    ->where('seller_id', $userId)
+                    ->whereYear('order_date', $year)
+                    ->whereMonth('order_date', $month)
+                    ->sum('total_price');
                 break;
             case 3:
                 $money = $this->model->where('status', '!=', 1)
-                ->where('trader_id', $userId)
-                ->sum('shipping_money');
+                    ->where('trader_id', $userId)
+                    ->sum('shipping_money');
                 $money_now = $this->model->where('status', '!=', 1)
-                ->where('trader_id', $userId)
-                ->whereYear('order_date', $year)
-                ->whereMonth('order_date', $month)
-                ->sum('shipping_money');
+                    ->where('trader_id', $userId)
+                    ->whereYear('order_date', $year)
+                    ->whereMonth('order_date', $month)
+                    ->sum('shipping_money');
                 break;
             default:
                 return response()->json(['message' => 'Unknown Role'], 400);
@@ -200,29 +200,29 @@ class OrderRepository extends BaseRepository implements OrderRepositoryInterface
             case 0:
                 $order = $this->model->where('status', '!=', 1)->count();
                 $order_now = $this->model->where('status', '!=', 1)
-                ->whereYear('order_date', $year)
-                ->whereMonth('order_date', $month)
-                ->count();
+                    ->whereYear('order_date', $year)
+                    ->whereMonth('order_date', $month)
+                    ->count();
                 break;
             case 2:
                 $order = $this->model->where('status', '!=', 1)
-                ->where('seller_id', $userId)
-                ->count();
+                    ->where('seller_id', $userId)
+                    ->count();
                 $order_now = $this->model->where('status', '!=', 1)
-                ->where('seller_id', $userId)
-                ->whereYear('order_date', $year)
-                ->whereMonth('order_date', $month)
-                ->count();
+                    ->where('seller_id', $userId)
+                    ->whereYear('order_date', $year)
+                    ->whereMonth('order_date', $month)
+                    ->count();
                 break;
             case 3:
                 $order = $this->model->where('status', '!=', 1)
-                ->where('trader_id', $userId)
-                ->count();
+                    ->where('trader_id', $userId)
+                    ->count();
                 $order_now = $this->model->where('status', '!=', 1)
-                ->where('trader_id', $userId)
-                ->whereYear('order_date', $year)
-                ->whereMonth('order_date', $month)
-                ->count();
+                    ->where('trader_id', $userId)
+                    ->whereYear('order_date', $year)
+                    ->whereMonth('order_date', $month)
+                    ->count();
                 break;
             default:
                 return response()->json(['message' => 'Unknown Role'], 400);
@@ -240,23 +240,23 @@ class OrderRepository extends BaseRepository implements OrderRepositoryInterface
         switch ($role) {
             case 2:
                 $quantity = $this->model->where('status', '!=', 1)
-                ->where('seller_id', $userId)
-                ->sum('total_quantity');
+                    ->where('seller_id', $userId)
+                    ->sum('total_quantity');
                 $quantity_now = $this->model->where('status', '!=', 1)
-                ->where('seller_id', $userId)
-                ->whereYear('order_date', $year)
-                ->whereMonth('order_date', $month)
-                ->sum('total_quantity');
+                    ->where('seller_id', $userId)
+                    ->whereYear('order_date', $year)
+                    ->whereMonth('order_date', $month)
+                    ->sum('total_quantity');
                 break;
             case 3:
                 $quantity = $this->model->where('status', '!=', 1)
-                ->where('trader_id', $userId)
-                ->sum('total_quantity');
+                    ->where('trader_id', $userId)
+                    ->sum('total_quantity');
                 $quantity_now = $this->model->where('status', '!=', 1)
-                ->where('trader_id', $userId)
-                ->whereYear('order_date', $year)
-                ->whereMonth('order_date', $month)
-                ->sum('total_quantity');
+                    ->where('trader_id', $userId)
+                    ->whereYear('order_date', $year)
+                    ->whereMonth('order_date', $month)
+                    ->sum('total_quantity');
                 break;
             default:
                 return response()->json(['message' => 'Unknown Role'], 400);
@@ -274,62 +274,62 @@ class OrderRepository extends BaseRepository implements OrderRepositoryInterface
         switch ($role) {
             case 0:
                 $price_received = $this->model->where('status', '=', 4)
-                ->whereYear('received_date', $year)
-                ->whereMonth('received_date', $month)
-                ->selectRaw('SUM(total_price) as total_price_sum, SUM(shipping_money) as shipping_money_sum')
-                ->first();
+                    ->whereYear('received_date', $year)
+                    ->whereMonth('received_date', $month)
+                    ->selectRaw('SUM(total_price) as total_price_sum, SUM(shipping_money) as shipping_money_sum')
+                    ->first();
                 $money_received = $price_received->total_price_sum + $price_received->shipping_money_sum;
                 $price_cancellation = $this->model->where('status', '=', 5)
-                ->whereYear('received_date', $year)
-                ->whereMonth('received_date', $month)
-                ->selectRaw('SUM(total_price) as total_price_sum, SUM(shipping_money) as shipping_money_sum')
-                ->first();
+                    ->whereYear('received_date', $year)
+                    ->whereMonth('received_date', $month)
+                    ->selectRaw('SUM(total_price) as total_price_sum, SUM(shipping_money) as shipping_money_sum')
+                    ->first();
                 $money_cancellation = $price_cancellation->total_price_sum + $price_cancellation->shipping_money_sum;
                 $price_cancel = $this->model
-                ->whereYear('order_cancellation_date', $year)
-                ->whereMonth('order_cancellation_date', $month)
-                ->selectRaw('SUM(total_price) as total_price_sum, SUM(shipping_money) as shipping_money_sum')
-                ->first();
+                    ->whereYear('order_cancellation_date', $year)
+                    ->whereMonth('order_cancellation_date', $month)
+                    ->selectRaw('SUM(total_price) as total_price_sum, SUM(shipping_money) as shipping_money_sum')
+                    ->first();
                 $money_cancel = $price_cancel->total_price_sum + $price_cancel->shipping_money_sum;
                 break;
             case 2:
                 $money_received = $this->model->where('status', '=', 4)
-                ->where('seller_id', $userId)
-                ->whereYear('received_date', $year)
-                ->whereMonth('received_date', $month)
-                ->sum('total_price');
+                    ->where('seller_id', $userId)
+                    ->whereYear('received_date', $year)
+                    ->whereMonth('received_date', $month)
+                    ->sum('total_price');
                 $money_cancellation = $this->model->where('status', '=', 5)
-                ->where('seller_id', $userId)
-                ->whereYear('received_date', $year)
-                ->whereMonth('received_date', $month)
-                ->sum('total_price');
+                    ->where('seller_id', $userId)
+                    ->whereYear('received_date', $year)
+                    ->whereMonth('received_date', $month)
+                    ->sum('total_price');
                 $money_cancel = $this->model
-                ->where('seller_id', $userId)
-                ->whereYear('order_cancellation_date', $year)
-                ->whereMonth('order_cancellation_date', $month)
-                ->sum('total_price');
+                    ->where('seller_id', $userId)
+                    ->whereYear('order_cancellation_date', $year)
+                    ->whereMonth('order_cancellation_date', $month)
+                    ->sum('total_price');
                 break;
             case 3:
                 $price_received = $this->model->where('status', '=', 4)
-                ->where('trader_id', $userId)
-                ->whereYear('received_date', $year)
-                ->whereMonth('received_date', $month)
-                ->selectRaw('SUM(total_price) as total_price_sum, SUM(shipping_money) as shipping_money_sum')
-                ->first();
+                    ->where('trader_id', $userId)
+                    ->whereYear('received_date', $year)
+                    ->whereMonth('received_date', $month)
+                    ->selectRaw('SUM(total_price) as total_price_sum, SUM(shipping_money) as shipping_money_sum')
+                    ->first();
                 $money_received = $price_received->total_price_sum + $price_received->shipping_money_sum;
                 $price_cancellation = $this->model->where('status', '=', 5)
-                ->where('trader_id', $userId)
-                ->whereYear('received_date', $year)
-                ->whereMonth('received_date', $month)
-                ->selectRaw('SUM(total_price) as total_price_sum, SUM(shipping_money) as shipping_money_sum')
-                ->first();
+                    ->where('trader_id', $userId)
+                    ->whereYear('received_date', $year)
+                    ->whereMonth('received_date', $month)
+                    ->selectRaw('SUM(total_price) as total_price_sum, SUM(shipping_money) as shipping_money_sum')
+                    ->first();
                 $money_cancellation = $price_cancellation->total_price_sum + $price_cancellation->shipping_money_sum;
                 $price_cancel = $this->model
-                ->where('trader_id', $userId)
-                ->whereYear('order_cancellation_date', $year)
-                ->whereMonth('order_cancellation_date', $month)
-                ->selectRaw('SUM(total_price) as total_price_sum, SUM(shipping_money) as shipping_money_sum')
-                ->first();
+                    ->where('trader_id', $userId)
+                    ->whereYear('order_cancellation_date', $year)
+                    ->whereMonth('order_cancellation_date', $month)
+                    ->selectRaw('SUM(total_price) as total_price_sum, SUM(shipping_money) as shipping_money_sum')
+                    ->first();
                 $money_cancel = $price_cancel->total_price_sum + $price_cancel->shipping_money_sum;
                 break;
             default:

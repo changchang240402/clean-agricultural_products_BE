@@ -8,6 +8,7 @@ use Exception;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 
 class UserService
 {
@@ -295,5 +296,13 @@ class UserService
         }
 
         return $nearestTrader;
+    }
+
+    public function uploadS3($path, $address)
+    {
+        $filePath = $address . time() . '_' . $path->getClientOriginalName();
+        Storage::put($filePath, file_get_contents($path), 's3');
+        $fileUrl = Storage::disk('s3')->url($filePath);
+        return $fileUrl;
     }
 }

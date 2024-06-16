@@ -34,8 +34,8 @@ class MailService
         Mail::to($email)->cc($ccTo)->bcc($bccTo)->send(new SendMail($subject, $data, $layout));
     }
 
-    public function sendMail($email, $title, $data)
+    public function sendMail($email, $title, $data, $ccTo = null, $bccTo = null)
     {
-        $this->send($email, $title, $data, 'mails.bill', null, null);
+        $this->send($email, $title, $data, 'mails.bill', $ccTo, $bccTo);
     }
 }

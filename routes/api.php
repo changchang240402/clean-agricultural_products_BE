@@ -27,7 +27,6 @@ use Illuminate\Support\Facades\Route;
 Route::group(['prefix' => 'auth'], function () {
     Route::post("login", [AuthController::class, "login"])->name('login');
     Route::post('register', [AuthController::class, 'register'])->name('register');
-    ;
 });
 
 Route::group([
@@ -45,7 +44,9 @@ Route::group([
     Route::get("order/{id}", [OrderController::class, "orderbyId"]);
     Route::get("products", [ProductController::class, "getProduct"]);
     Route::get("items", [ItemController::class, "getItems"]);
+    Route::post("review", [ReviewController::class, "createReview"]);
     Route::get("statistic", [UserController::class, "statistic"]);
+    Route::post("updateOrder/{id}", [OrderController::class, "updateOrder"]);
 });
 
 Route::group([
@@ -76,6 +77,10 @@ Route::group([
     Route::get("sellers", [UserController::class, "getSellerToAdmin"]);
     Route::get("users", [UserController::class, "getUserToAdmin"]);
     Route::get("traders", [UserController::class, "getTraderToAdmin"]);
+    Route::post("itemWarning", [ItemController::class, "getItemWarning"]);
+    Route::post("itemBan", [ItemController::class, "getItemBan"]);
+    Route::post("itemUnban", [ItemController::class, "getItemUnban"]);
+    Route::post('upload', [UserController::class, 'upload']);
 });
 
 Route::get("abc", [OrderController::class, "updateStatusFrom3To4"]);

@@ -16,7 +16,7 @@ return new class extends Migration
             $table->string('item_name', 150);
             $table->unsignedBigInteger('product_id');
             $table->unsignedBigInteger('seller_id');
-            $table->string('describe');
+            $table->text('describe');
             $table->integer('total');
             $table->decimal('price', 10, 2);
             $table->integer('type');

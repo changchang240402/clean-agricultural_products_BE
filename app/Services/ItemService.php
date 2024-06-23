@@ -11,12 +11,44 @@ use Illuminate\Support\Facades\DB;
 class ItemService
 {
     private const PAGINATE_PER_PAGE = 20;
+
+    private const PAGINATE_PER_PAGE_COUNT = 10;
     protected $itemRepository;
 
     public function __construct(
         ItemRepository $itemRepository,
     ) {
         $this->itemRepository = $itemRepository;
+    }
+
+    public function getItem(
+        int $page,
+        string $name = null,
+        int $status = null,
+    ) {
+        $items = $this->itemRepository->getItem();
+        if ($items->count() > 0) {
+            if ($name) {
+                $items = $this->filterByName($items, $name);
+            }
+            if (isset($status)) {
+                $items = $this->filterByStatus($items, $status);
+            }
+        }
+        if ($items->isEmpty()) {
+            throw new Exception('Item not found');
+        }
+        $perPage = self::PAGINATE_PER_PAGE_COUNT;
+        $itemsPerPage = $items->forPage($page, $perPage);
+        $paginatedItems = new LengthAwarePaginator(
+            $itemsPerPage->values()->all(),
+            $items->count(),
+            $perPage,
+            $page,
+            ['path' => request()->url(), 'query' => request()->query()]
+        );
+
+        return $paginatedItems;
     }
 
     public function getItemsToUser(
@@ -38,7 +70,7 @@ class ItemService
             }
         }
         if ($items->isEmpty()) {
-            throw new Exception('Shop not found');
+            throw new Exception('Item not found');
         }
         $perPage = self::PAGINATE_PER_PAGE;
         $itemsPerPage = $items->forPage($page, $perPage);
@@ -60,6 +92,13 @@ class ItemService
         } elseif ($sort === 'desc') {
             return $items->sortByDesc('price');
         }
+    }
+
+    private function filterByStatus($items, $status)
+    {
+        return isset($status) ? $items->filter(function ($item) use ($status) {
+            return $item['status'] === $status;
+        }) : $items;
     }
 
     private function filterByName($items, $name)
@@ -97,16 +136,93 @@ class ItemService
         }
         return $this->getItemsToUser($page, $name, $product, $sort);
     }
+
+    public function filterItems(int $page, array $filter)
+    {
+        $name = null;
+        $status = null;
+        if (isset($filter['name'])) {
+            $name = $filter['name'];
+        }
+        if (isset($filter['status'])) {
+            $status = $filter['status'];
+        }
+        return $this->getItem($page, $name, $status);
+    }
     public function getTopItemSale()
     {
         $item = $this->itemRepository->getItemsToUser();
         return $item->sortByDesc('total_orders')->take(10)->values()->toArray();
-        ;
     }
 
     public function getNewItemSale()
     {
         $items = $this->itemRepository->getItemsToUser();
-        return $items->sortByDesc('created_at')->take(25)->values()->toArray();
+        return $items->sortBy('total_orders')->take(25)->values()->toArray();
+    }
+
+    public function itemDetail($id)
+    {
+        return $this->itemRepository->itemDetail($id);
+    }
+
+    public function getItemByShop($id)
+    {
+        $items = $this->itemRepository->getItemsToUser();
+        $itemShop = $items->filter(function ($item) use ($id) {
+            if ($item['seller_id'] == $id) {
+                return true;
+            }
+            return false;
+        });
+        return $itemShop->values()->toArray();
+    }
+
+    public function getItemWarning()
+    {
+        return $this->itemRepository->getItemWarning();
+    }
+
+    public function getItemUnban()
+    {
+        return $this->itemRepository->getItemUnban();
+    }
+
+    public function getItemBan()
+    {
+        $items = $this->itemRepository->getItem();
+        return $items->filter(function ($item) {
+            if ($item['status'] == config('constants.STATUS_ITEM')['in use'] && $item['notifications'] >= 3) {
+                return true;
+            }
+            return false;
+        })->pluck('id');
+    }
+
+    public function createItem($item)
+    {
+        $item['seller_id'] = auth()->id();
+        $item['status'] = 2;
+        try {
+            $data = $this->itemRepository->create($item);
+        } catch (Exception $e) {
+            throw new Exception($e->getMessage());
+        }
+        return $data;
+    }
+
+    public function updateItem($id, $item)
+    {
+        $userId = auth()->id();
+        $itemOld = $this->itemRepository->getItemBySellerId($userId, $id);
+        if (!$itemOld) {
+            throw new Exception('This item does not exist');
+        }
+        try {
+            $data = $this->itemRepository->update($id, $item);
+        } catch (Exception $e) {
+            throw new Exception($e->getMessage());
+        }
+        return $data;
     }
 }

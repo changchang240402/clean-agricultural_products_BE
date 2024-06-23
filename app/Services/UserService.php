@@ -279,9 +279,9 @@ class UserService
             throw new Exception('This address user does not exist');
         }
         $traders = User::where('role', '=', config('constants.ROLE')['trader'])
-                        ->where('status', '=', config('constants.STATUS_USER')['in use'])
-                        ->where('payload', '>=', $total_quantity)
-                        ->get();
+            ->where('status', '=', config('constants.STATUS_USER')['in use'])
+            ->where('payload', '>=', $total_quantity)
+            ->get();
         $nearestTrader = null;
         $nearestDistance = PHP_INT_MAX;
         foreach ($traders as $trader) {

@@ -56,6 +56,19 @@ class OrderRepository extends BaseRepository implements OrderRepositoryInterface
             ->get();
     }
 
+    public function getOrderCancelTrader($userId, $id)
+    {
+        return $this->model
+            ->where('id', $id)
+            ->where('trader_id', '=', $userId)
+            ->with([
+                'seller' => function ($query) {
+                    $query->select('id', 'address', 'email');
+                }
+            ])
+            ->first();
+    }
+
     public function statisticsOrder($userId, $role)
     {
         $totalMoney = 0;

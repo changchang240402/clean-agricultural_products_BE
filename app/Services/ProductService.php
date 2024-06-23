@@ -83,4 +83,14 @@ class ProductService
         }
         return $this->getProduct($page, $productTypeId, $sort);
     }
+
+    public function updateProduct($id, $product)
+    {
+        try {
+            $data = $this->productRepository->update($id, $product);
+        } catch (Exception $e) {
+            throw new Exception($e->getMessage());
+        }
+        return $data;
+    }
 }

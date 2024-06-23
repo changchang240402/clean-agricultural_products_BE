@@ -224,4 +224,24 @@ class ItemRepository extends BaseRepository implements ItemRepositoryInterface
             'item_now' => $item_now
         ];
     }
+
+    public function getItemBySellerId($userId, $itemId)
+    {
+        return $this->model->where('id', '=', $itemId)->where('seller_id', '=', $userId)->first();
+    }
+
+    // public function update($id, $attributes = [])
+    // {
+    //     $item = $this->model::find($id);
+    //     if (!$item) {
+    //         throw new Exception('Issue not found');
+    //     }
+    //     $item->update($attributes);
+    //     if (!$item->wasChanged()) {
+    //         throw new Exception('No changes have been made');
+    //     }
+    //     $changes = ['new' => $item->getChanges()];
+
+    //     return $changes;
+    // }
 }

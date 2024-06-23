@@ -9,6 +9,7 @@ use App\Http\Controllers\ReviewController;
 use App\Http\Controllers\StripeController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\VnPayController;
+use App\Http\Controllers\NotificationController;
 use App\Models\Review;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -47,6 +48,10 @@ Route::group([
     Route::post("review", [ReviewController::class, "createReview"]);
     Route::get("statistic", [UserController::class, "statistic"]);
     Route::post("updateOrder/{id}", [OrderController::class, "updateOrder"]);
+    Route::post("updateStatusItem/{id}", [ItemController::class, "updateStatusItem"]);
+    Route::get("notification", [NotificationController::class, "getNotification"]);
+    Route::delete("delete/{id}", [NotificationController::class, 'deleteNotification']);
+    Route::post('updateNotifi', [NotificationController::class, 'updateNotifications']);
 });
 
 Route::group([
@@ -81,7 +86,23 @@ Route::group([
     Route::post("itemBan", [ItemController::class, "getItemBan"]);
     Route::post("itemUnban", [ItemController::class, "getItemUnban"]);
     Route::post('upload', [UserController::class, 'upload']);
+    Route::put("updateProduct/{id}", [ProductController::class, "updateProduct"]);
 });
 
+Route::group([
+    'middleware' => ['auth.seller'],
+    'prefix' => 'seller'
+], function () {
+    Route::get("listProduct", [ProductController::class, "listProduct"]);
+    Route::post("createItem", [ItemController::class, "createItem"]);
+    Route::put("updateItem/{id}", [ItemController::class, "updateItem"]);
+});
+
+Route::group([
+    'middleware' => ['auth.trader'],
+    'prefix' => 'trader'
+], function () {
+    Route::post("updateBillById/{id}", [OrderController::class, "updateBillById"]);
+});
 Route::get("abc", [OrderController::class, "updateStatusFrom3To4"]);
 Route::get('/directions', [OrderController::class, 'getDirections']);

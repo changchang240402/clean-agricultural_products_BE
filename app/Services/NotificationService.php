@@ -22,4 +22,9 @@ class NotificationService
     {
         return $this->notificationRepository->create($data);
     }
+
+    public function getNotification()
+    {
+        return $this->notificationRepository->getNotification();
+    }
 }

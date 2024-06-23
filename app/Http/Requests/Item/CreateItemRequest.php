@@ -31,7 +31,7 @@ class CreateItemRequest extends FormRequest
             'price' => 'required|numeric|between:0.00,99999999.99',
             'type' => 'required|numeric|min:50|max:200',
             'price_type' => 'required|numeric|between:0.00,999999999999.99',
-            'image' => 'required|file|mimes:jpeg,jpg,png,gif,bmp,svg,webp',
+            'image' => 'required|string',
         ];
     }
 

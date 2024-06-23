@@ -11,6 +11,8 @@ use Illuminate\Support\Facades\DB;
 class ItemService
 {
     private const PAGINATE_PER_PAGE = 20;
+
+    private const PAGINATE_PER_PAGE_COUNT = 10;
     protected $itemRepository;
 
     public function __construct(
@@ -36,7 +38,7 @@ class ItemService
         if ($items->isEmpty()) {
             throw new Exception('Item not found');
         }
-        $perPage = self::PAGINATE_PER_PAGE;
+        $perPage = self::PAGINATE_PER_PAGE_COUNT;
         $itemsPerPage = $items->forPage($page, $perPage);
         $paginatedItems = new LengthAwarePaginator(
             $itemsPerPage->values()->all(),
@@ -195,5 +197,32 @@ class ItemService
             }
             return false;
         })->pluck('id');
+    }
+
+    public function createItem($item)
+    {
+        $item['seller_id'] = auth()->id();
+        $item['status'] = 2;
+        try {
+            $data = $this->itemRepository->create($item);
+        } catch (Exception $e) {
+            throw new Exception($e->getMessage());
+        }
+        return $data;
+    }
+
+    public function updateItem($id, $item)
+    {
+        $userId = auth()->id();
+        $itemOld = $this->itemRepository->getItemBySellerId($userId, $id);
+        if (!$itemOld) {
+            throw new Exception('This item does not exist');
+        }
+        try {
+            $data = $this->itemRepository->update($id, $item);
+        } catch (Exception $e) {
+            throw new Exception($e->getMessage());
+        }
+        return $data;
     }
 }

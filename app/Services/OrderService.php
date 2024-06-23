@@ -73,6 +73,11 @@ class OrderService
         return $orders;
     }
 
+    public function updateBillById($userId, $id)
+    {
+        return $this->orderRepository->getOrderCancelTrader($userId, $id);
+    }
+
     public function statisticsOrder($userId, $role)
     {
         return $this->orderRepository->statisticsOrder($userId, $role);

@@ -164,7 +164,7 @@ class UserController extends Controller
             if ($contents === false) {
                 throw new \Exception("Failed to read file contents.");
             }
-            $tempPath = tempnam(sys_get_temp_dir(), 'excel');
+            $tempPath = tempnam(sys_get_temp_dir(), 'excel') . '.xlsx';
             file_put_contents($tempPath, $contents);
             $importedData = Excel::toCollection([], $tempPath);
             unlink($tempPath);

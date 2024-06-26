@@ -86,6 +86,7 @@ Route::group([
     Route::post("itemBan", [ItemController::class, "getItemBan"]);
     Route::post("itemUnban", [ItemController::class, "getItemUnban"]);
     Route::post('upload', [UserController::class, 'upload']);
+    Route::post('updateStatusUser/{id}', [UserController::class, 'updateStatusUser']);
     Route::put("updateProduct/{id}", [ProductController::class, "updateProduct"]);
 });
 

@@ -9,8 +9,7 @@
                     <div class="logo h-10 mr-2 flex font-bold justify-center w-full items-center font-roboto">
                         <h1 class="lobster">N</h1>
                         <div class="">
-                            <img loading="lazy" src="https://techport.vn/uploads/2019/12-4/share_fb_home.png"
-                                height="40px" width="40px" alt="" />
+                            <img loading="lazy" src="https://techport.vn/uploads/2019/12-4/share_fb_home.png" height="40px" width="40px" alt="" />
                         </div>
                         <h1 class="lobster">ng Sản Việt</h1>
                     </div>
@@ -30,8 +29,7 @@
                         <tr>
                             <td>
                                 <div>
-                                    <a class="button"
-                                        href='https://agriculturalvietnamese.io.vn/{{ $data['link'] }}'>Xem</a>
+                                    <a class="button" href='https://agriculturalvietnamese.io.vn{{ $data['link'] }}'>Xem</a>
                                 </div>
                             </td>
                         </tr>

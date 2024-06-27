@@ -30,7 +30,8 @@
                         <tr>
                             <td>
                                 <div>
-                                    <a class="button" href='http://localhost:3000{{ $data['link'] }}'>Xem</a>
+                                    <a class="button"
+                                        href='https://agriculturalvietnamese.io.vn/{{ $data['link'] }}'>Xem</a>
                                 </div>
                             </td>
                         </tr>

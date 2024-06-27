@@ -166,7 +166,7 @@ class ItemRepository extends BaseRepository implements ItemRepositoryInterface
                 $price = $item->price;
                 $priceMax = $item->product->price_max;
                 $priceMin = $item->product->price_min;
-                return $price > $priceMin && $price < $priceMax;
+                return $price >= $priceMin && $price <= $priceMax;
             })
             ->pluck('id');
     }

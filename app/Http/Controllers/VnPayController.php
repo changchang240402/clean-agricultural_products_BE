@@ -9,7 +9,7 @@ class VnPayController extends Controller
     protected $vnp_TmnCode = "LJU98Q74"; //Website ID in VNPAY System
     protected $vnp_HashSecret = "CTC2U1KHPFSP70A5VR310TH2Y4PBF599"; //Secret key
     protected $vnp_Url = "https://sandbox.vnpayment.vn/paymentv2/vpcpay.html";
-    protected $vnp_Returnurl = "http://localhost:3000/user/vnpay_return";
+    protected $vnp_Returnurl = "https://agriculturalvietnamese.io.vn/user/vnpay_return";
     protected $vnp_apiUrl = "http://sandbox.vnpayment.vn/merchant_webapi/merchant.html";
     public function createPaymentUrl(Request $request)
     {
@@ -55,7 +55,7 @@ class VnPayController extends Controller
 
         $vnp_Url = $this->vnp_Url . "?" . $query;
         if (isset($this->vnp_HashSecret)) {
-            $vnpSecureHash =   hash_hmac('sha512', $hashdata, $this->vnp_HashSecret);//
+            $vnpSecureHash =   hash_hmac('sha512', $hashdata, $this->vnp_HashSecret); //
             $vnp_Url .= 'vnp_SecureHash=' . $vnpSecureHash;
         }
         return response()->json([
